@@ -1,19 +1,16 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { fetchContacts } from './redux/contactsSlice';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import Filter from './components/Filter';
-import { setContacts } from './redux/contactsSlice';
 import styles from './App.module.css';
 
 const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const storedContacts = JSON.parse(localStorage.getItem('contacts'));
-    if (storedContacts) {
-      dispatch(setContacts(storedContacts));
-    }
+    dispatch(fetchContacts());
   }, [dispatch]);
 
   return (

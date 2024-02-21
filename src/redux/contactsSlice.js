@@ -1,56 +1,47 @@
-// import { createSlice, createAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-// const addContact = createAction('contacts/addContact');
-// const deleteContact = createAction('contacts/deleteContact');
-// const setContacts = createAction('contacts/setContacts');
+const apiUrl = 'https://65d5f0ccf6967ba8e3bd06c0.mockapi.io/contacts/contacts';
 
-// const contactsSlice = createSlice({
-//   name: 'contacts',
-//   initialState: [],
-//   reducers: {},
-//   extraReducers: builder => {
-//     builder
-//       .addCase(addContact, (state, action) => {
-//         state.push(action.payload);
-//       })
-//       .addCase(deleteContact, (state, action) => {
-//         return state.filter(contact => contact.id !== action.payload);
-//       })
-//       .addCase(setContacts, (state, action) => {
-//         return action.payload;
-//       });
-//   },
-// });
+export const fetchContacts = createAsyncThunk(
+  'contacts/fetchContacts',
+  async () => {
+    const response = await axios.get(apiUrl);
+    return response.data;
+  }
+);
 
-// export { addContact, deleteContact, setContacts };
-// export default contactsSlice.reducer;
+export const addNewContact = createAsyncThunk(
+  'contacts/addNewContact',
+  async contact => {
+    const response = await axios.post(apiUrl, contact);
+    return response.data;
+  }
+);
 
-import { createSlice } from '@reduxjs/toolkit';
+export const deleteContact = createAsyncThunk(
+  'contacts/deleteContact',
+  async id => {
+    await axios.delete(`${apiUrl}/${id}`);
+    return id;
+  }
+);
 
 const contactsSlice = createSlice({
   name: 'contacts',
   initialState: [],
-  reducers: {
-    // Dodajemy akcję do ustawiania kontaktów
-    setContacts: (state, action) => {
-      return action.payload; // Ustawiamy kontakty z payloadu akcji
-    },
-    // Dodajemy akcję do dodawania nowego kontaktu
-    addContact: (state, action) => {
-      state.push(action.payload); // Dodajemy nowy kontakt do stanu
-    },
-    // Dodajemy akcję do usuwania kontaktu
-    deleteContact: (state, action) => {
-      return state.filter(contact => contact.id !== action.payload); // Usuwamy kontakt ze stanu na podstawie ID
-    },
-  },
+  reducers: {},
   extraReducers: builder => {
-    // Tutaj pozostawiamy obsługę asynchronicznych akcji
+    builder.addCase(fetchContacts.fulfilled, (state, action) => {
+      return action.payload;
+    });
+    builder.addCase(addNewContact.fulfilled, (state, action) => {
+      state.push(action.payload);
+    });
+    builder.addCase(deleteContact.fulfilled, (state, action) => {
+      return state.filter(contact => contact.id !== action.payload);
+    });
   },
 });
 
-// Eksportujemy akcje
-export const { setContacts, addContact, deleteContact } = contactsSlice.actions;
-
-// Eksportujemy reducer
 export default contactsSlice.reducer;
